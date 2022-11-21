@@ -34,8 +34,9 @@ const userData = {
 
 
 app.get("/", (req, res)=>{
-    res.send("get is working");
+    res.json(userData.users);
 });
+
 app.post("/signin", (req,res)=>{
     
     if(req.body.email=== userData.users[2].email && req.body.password===userData.users[2].password){
@@ -43,14 +44,52 @@ app.post("/signin", (req,res)=>{
 }
 else res.json("errr");
 });
-app.listen (3000, ()=>{
-    console.log("app is running on port 3000");
+
+app.post("/register", (req,res)=>{
+    const {name, email, password} = req.body;
+    const i = userData.users.length-1; 
+    userData.users.push({
+            id: String(parseInt(userData.users[i].id)+1),
+            name: name,
+            email: email,
+            password: password,
+            entries: 0,
+            joined: new Date()
+    });
+
+    res.json("Registered");
+    });
+   
+app.get("/profile/:id",(req,res)=>{
+    const {id} = req.params;
+    let found = false;
+    userData.users.forEach(user=>{
+        if (user.id === id){
+            found = true;
+            return res.json(user);
+        }
+    })
+    if(!found){
+        res.status(404).json("Profile not found");
+    }
 });
 
-/*
-/ --> res = this is working
-/signin --> POST = success/fail 
-/register --> POST = user
-/profile/:userId --> GET = user
-/image--> PUT --> user
-*/
+app.put("/image",(req, res)=>{
+    const {id} = req.body;
+    let found = false;
+    userData.users.forEach(user=>{
+        if (user.id === id){
+            found = true;
+            user.entries++;
+            return res.json(user.entries);
+        }
+    })
+    if(!found){
+        res.status(404).json("Profile not found, Failed to put entries");
+    }
+})
+
+app.listen (3131, ()=>{
+    console.log("app is running on port 3131");
+});
+
