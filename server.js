@@ -44,9 +44,11 @@ app.post("/signin", (req, res) => {
     req.body.email === userData.users[2].email &&
     req.body.password === userData.users[2].password
   ) {
-    res.json(userData);
+    res.json("success");
+   }
+  else {
+    res.json("error Logging in")
   }
-  console.log(req.body.email);
 });
 
 app.post("/register", (req, res) => {
