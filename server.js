@@ -40,14 +40,18 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
+  // res.set({
+  //   "Content-Type": "application/json",
+  //   "Access-Control-Allow-Origin": "*",
+  //   "Access-Control-Allow-Credentials": true,
+  // });
   if (
     req.body.email === userData.users[2].email &&
     req.body.password === userData.users[2].password
   ) {
     res.json("success");
-   }
-  else {
-    res.json("error Logging in")
+  } else {
+    res.json("error Logging in");
   }
 });
 
