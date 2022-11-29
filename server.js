@@ -40,34 +40,29 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-  // res.set({
-  //   "Content-Type": "application/json",
-  //   "Access-Control-Allow-Origin": "*",
-  //   "Access-Control-Allow-Credentials": true,
-  // });
   if (
     req.body.email === userData.users[2].email &&
     req.body.password === userData.users[2].password
   ) {
-    res.json("success");
-  } else {
-    res.json("error Logging in");
-  }
+    res.json(userData.users[2]);
+   }
+  
 });
 
 app.post("/register", (req, res) => {
-  const { name, email, password } = req.body;
+  const { newName, newEmail, newPassword } = req.body;
   const i = userData.users.length - 1;
   userData.users.push({
     id: String(parseInt(userData.users[i].id) + 1),
-    name: name,
-    email: email,
-    password: password,
+    name: newName,
+    email: newEmail,
+    password: newPassword,
     entries: 0,
     joined: new Date(),
   });
+const {password, ...remData} = userData.users[i];
 
-  res.json("Registered");
+  res.json(remData);      
 });
 
 app.get("/profile/:id", (req, res) => {
