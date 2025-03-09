@@ -1,99 +1,47 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+const bodyParser = require("body-parser"); // latest version of exressJS now comes with Body-Parser!
+const bcrypt = require("bcrypt-nodejs");
 const cors = require("cors");
+const knex = require("knex");
+
+const register = require("./controllers/register");
+const signin = require("./controllers/signin");
+const profile = require("./controllers/profile");
+const image = require("./controllers/image");
+
+const db = knex({
+  // connect to your own database here:
+  client: "pg",
+  connection: {
+    host: "127.0.0.1",
+    user: `${process.env.DB_USER}`,
+    password: `${process.env.DB_PASS}`,
+    database: `${process.env.DB_NAME}`,
+  },
+});
 
 const app = express();
-app.use(bodyParser.json());
-app.use(cors());
 
-const userData = {
-  users: [
-    {
-      id: "123",
-      name: "Andy",
-      email: "andy@myapp.com",
-      password: "andy@123",
-      entries: 0,
-      joined: new Date(),
-    },
-    {
-      id: "124",
-      name: "Becky",
-      email: "becky@myapp.com",
-      password: "becky@123",
-      entries: 0,
-      joined: new Date(),
-    },
-    {
-      id: "125",
-      name: "Carl",
-      email: "carl@myapp.com",
-      password: "carl@123",
-      entries: 0,
-      joined: new Date(),
-    },
-  ],
-};
+app.use(cors());
+app.use(express.json()); // latest version of exressJS now comes with Body-Parser!
 
 app.get("/", (req, res) => {
-  res.json(userData.users);
+  res.send(db.users);
 });
-
-app.post("/signin", (req, res) => {
-  if (
-    req.body.email === userData.users[2].email &&
-    req.body.password === userData.users[2].password
-  ) {
-    res.json(userData.users[2]);
-   }
-  
-});
-
+app.post("/signin", signin.handleSignin(db, bcrypt));
 app.post("/register", (req, res) => {
-  const { newName, newEmail, newPassword } = req.body;
-  const i = userData.users.length - 1;
-  userData.users.push({
-    id: String(parseInt(userData.users[i].id) + 1),
-    name: newName,
-    email: newEmail,
-    password: newPassword,
-    entries: 0,
-    joined: new Date(),
-  });
-const {password, ...remData} = userData.users[i];
-
-  res.json(remData);      
+  register.handleRegister(req, res, db, bcrypt);
 });
-
 app.get("/profile/:id", (req, res) => {
-  const { id } = req.params;
-  let found = false;
-  userData.users.forEach((user) => {
-    if (user.id === id) {
-      found = true;
-      return res.json(user);
-    }
-  });
-  if (!found) {
-    res.status(404).json("Profile not found");
-  }
+  profile.handleProfileGet(req, res, db);
 });
-
 app.put("/image", (req, res) => {
-  const { id } = req.body;
-  let found = false;
-  userData.users.forEach((user) => {
-    if (user.id === id) {
-      found = true;
-      user.entries++;
-      return res.json(user.entries);
-    }
-  });
-  if (!found) {
-    res.status(404).json("Profile not found, Failed to put entries");
-  }
+  image.handleImage(req, res, db);
+});
+app.post("/imageurl", (req, res) => {
+  image.handleApiCall(req, res);
 });
 
-app.listen(3131, () => {
-  console.log("app is running on port 3131");
+app.listen(3000, () => {
+  console.log("app is running on port 3000");
 });
