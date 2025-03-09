@@ -8,6 +8,7 @@ const register = require("./controllers/register");
 const signin = require("./controllers/signin");
 const profile = require("./controllers/profile");
 const image = require("./controllers/image");
+require("dotenv").config();
 
 const db = knex({
   // connect to your own database here:
